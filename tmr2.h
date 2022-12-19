@@ -39,7 +39,7 @@ void tmr2_init(void) {
     T2CONbits.T2OUTPS = TMR2POSTSCALE - 1; // -1 Because 0b0000 is DIV_BY_1
 }
 
-#define tmr2_enable() T2CONbits.TMR2ON = 1; TMR2 = 0;
+#define tmr2_enable() T2CONbits.TMR2ON = 1; TMR2 = 0
 #define tmr2_disable() T2CONbits.TMR2ON = 0;
 
 #endif

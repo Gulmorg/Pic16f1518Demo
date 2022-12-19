@@ -36,7 +36,7 @@ void __interrupt() led_isr() {
         if (_ledEnabled) {
             wdt_clear();
 
-            //remove
+            // PWM_TEST
             if (_ledFilling) _ledCounter++;
             else _ledCounter--;
 
@@ -44,26 +44,26 @@ void __interrupt() led_isr() {
 
             if (_ledCounter == 0) _ledFilling = 1;
             else if (_ledCounter == PWM_MAX_DUTY) _ledFilling = 0;
-            // remove
+            // PWM_TEST_END
 
-            //            _ledCounter++;
-            //            if (_ledSpeedFast) { // 1Hz
-            //                if (LED == 1 && _ledCounter >= 175) {
-            //                    LED = 0;
-            //                    _ledCounter = 0;
-            //                } else if (LED == 0 && _ledCounter >= 825) {
-            //                    LED = 1;
-            //                    _ledCounter = 0;
-            //                }
-            //            } else { // 0.5Hz
-            //                if (LED == 1 && _ledCounter >= 175) {
-            //                    LED = 0;
-            //                    _ledCounter = 0;
-            //                } else if (LED == 0 && _ledCounter >= 1640) {
-            //                    LED = 1;
-            //                    _ledCounter = 0;
-            //                }
-            //            }
+            //                        _ledCounter++;
+            //                        if (_ledSpeedFast) { // 1Hz
+            //                            if (RC1 == 1 && _ledCounter >= 175) {
+            //                                RC1 = 0;
+            //                                _ledCounter = 0;
+            //                            } else if (RC1 == 0 && _ledCounter >= 825) {
+            //                                RC1 = 1;
+            //                                _ledCounter = 0;
+            //                            }
+            //                        } else { // 0.5Hz
+            //                            if (RC1 == 1 && _ledCounter >= 175) {
+            //                                RC1 = 0;
+            //                                _ledCounter = 0;
+            //                            } else if (RC1 == 0 && _ledCounter >= 1640) {
+            //                                RC1 = 1;
+            //                                _ledCounter = 0;
+            //                            }
+            //                        }
         }
     }
 }
@@ -71,8 +71,6 @@ void __interrupt() led_isr() {
 void main(void) {
     wdt_init(WDT_8S);
     wdt_enable();
-
-    _ledFilling = 1; // remove
 
     intosc_set_freq();
 
@@ -94,26 +92,32 @@ void main(void) {
         _buzzerEnabled = ~BUZZER_ENABLE_PIN;
     }
 
+    tmr0_init();
+    tmr2_init();
+
     __delay_ms(50);
 
-    tmr2_init();
+    tmr0_enable();
     tmr2_enable();
 
     if (_ledEnabled) {
         // Select Flash Mode
         _ledSpeedFast = FLASH_SPEED_PIN;
         pwm2_enable();
+        TRISCbits.TRISC1 = 0;
     }
 
     if (_buzzerEnabled) {
         // Select Tone (3, 4, 6, 7, 8)
         _toneMode = (unsigned char) (8 - (((int) TONE_PIN_0 << 2) + ((int) TONE_PIN_1 << 1) + (int) TONE_PIN_2));
         pwm1_enable();
+        TRISCbits.TRISC2 = 0;
     }
-    TRISA = 0;
-    PORTA = _toneMode;
-    tmr0_init();
-    tmr0_enable();
+
+    // PWM_TEST
+    _toneMode = 3;
+    _ledFilling = 1;
+    // PWM_TEST_END
 
     switch (_toneMode) {
         case 1: toneMode1();

@@ -15,8 +15,5 @@
 #define TONE_PIN_2 RB4
 #define FLASH_SPEED_PIN RB5
 
-#define TRIS_LED TRISC1
-#define LED RC1
-
 #endif	/* PINS_H */
 

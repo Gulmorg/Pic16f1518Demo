@@ -8,7 +8,7 @@
 #ifndef PWM1_H
 #define PWM1_H
 
-#define pwm1_enable() CCP1CONbits.CCP1M3 = 1; CCP1CONbits.CCP1M2 = 1; TRISCbits.TRISC2 = 0
+#define pwm1_enable() CCP1CONbits.CCP1M3 = 1; CCP1CONbits.CCP1M2 = 1
 #define pwm1_disable() CCP1CONbits.CCP1M = 0
 
 void pwm1_set_duty(unsigned int duty) {
@@ -20,7 +20,7 @@ void pwm1_set_duty(unsigned int duty) {
         RC2 = 1;
     } else {
         pwm1_enable();
-        duty = (unsigned int) pwm_get_duty(duty);
+        duty = pwm_calculate_duty(duty);
         if (duty == 0) duty = 1;
         CCP1CONbits.DC1B1 = duty & 2;
         CCP1CONbits.DC1B0 = duty & 1;

@@ -16,7 +16,7 @@
 #define wdt_enable() WDTCONbits.SWDTEN = 1
 #define wdt_disable() WDTCONbits.SWDTEN = 0
 
-#define wdt_clear() __asm("clrwdt")
+void wdt_clear() { __asm("clrwdt"); }
 
 #endif
 
