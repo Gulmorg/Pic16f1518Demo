@@ -65,7 +65,7 @@ void toneMode2(void) { // AS1670 Evacuation 1000-2500Hz 0,5s-0,5s off x 3 / 1,5s
 }
 
 void toneMode3(void) { //!!! AFNOR NF S32-001 554 Hz 0.1s, 440 Hz 0.4s
-//    while (1) {
+    while (1) { //TODO: Re-write this inside isr with ifs instead of whiles
         wdt_clear();
         pwm_set_freq(554); // 554 Hz
         pwm1_set_duty(BUZZER_VOLUME);
@@ -75,7 +75,7 @@ void toneMode3(void) { //!!! AFNOR NF S32-001 554 Hz 0.1s, 440 Hz 0.4s
         pwm1_set_duty(BUZZER_VOLUME);
         _buzzerCounter = 0;
         while (_buzzerCounter < 400);
-//    }
+    }
 }
 
 void toneMode4(void) { // ISO 8201
