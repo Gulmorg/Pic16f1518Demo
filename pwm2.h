@@ -20,7 +20,7 @@ void pwm2_set_duty(unsigned int duty) {
         RC1 = 1;
     } else {
         pwm2_enable();
-        duty = (duty * (PR2)) / MAX_PERIOD;
+        duty = (unsigned int) pwm_get_duty(duty);
         if (duty == 0) duty = 1;
         CCP2CONbits.DC2B1 = duty & 2;
         CCP2CONbits.DC2B0 = duty & 1;

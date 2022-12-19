@@ -3,7 +3,7 @@
 #define TMR0RESET 6
 
 #define TMR2PRESCALE 64
-#define BUZZER_VOLUME 0 // Max volume at half of max duty (511)
+#define BUZZER_VOLUME 511 // Max volume at half of max duty (511)
 
 #define _XTAL_FREQ 16000000
 
@@ -12,6 +12,7 @@
 #include <xc.h>
 
 // Variables
+unsigned long _pwmFreq = 0;
 unsigned int _buzzerCounter = 0;
 unsigned int _ledCounter = 0;
 unsigned char _toneMode = 0;
@@ -89,8 +90,8 @@ void main(void) {
         _ledEnabled = 1;
         _buzzerEnabled = 1;
     } else {
-        _ledEnabled = LED_ENABLE_PIN;
-        _buzzerEnabled = BUZZER_ENABLE_PIN;
+        _ledEnabled = ~LED_ENABLE_PIN;
+        _buzzerEnabled = ~BUZZER_ENABLE_PIN;
     }
 
     __delay_ms(50);
@@ -105,11 +106,12 @@ void main(void) {
     }
 
     if (_buzzerEnabled) {
-        // Select Tone
+        // Select Tone (3, 4, 6, 7, 8)
         _toneMode = (unsigned char) (8 - (((int) TONE_PIN_0 << 2) + ((int) TONE_PIN_1 << 1) + (int) TONE_PIN_2));
         pwm1_enable();
     }
-
+    TRISA = 0;
+    PORTA = _toneMode;
     tmr0_init();
     tmr0_enable();
 
