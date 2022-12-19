@@ -3,8 +3,8 @@
 #define TMR0RESET 6
 
 #define TMR2PRESCALE 64
-#define BUZZER_VOLUME 511 // Max volume at half of max duty (511)
-
+#define BUZZER_VOLUME 511 /* Max volume = `((Max Duty + 1) / 2) - 1 = `511´
+                                or just = `Max Duty / 2 = `511´ since the carry bit is discarded */
 #define _XTAL_FREQ 16000000
 
 // Configuration
