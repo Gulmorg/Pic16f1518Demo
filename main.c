@@ -31,17 +31,16 @@ __bit _ledDraining = 0; // remove
 void __interrupt() led_isr() {
     if (INTCONbits.T0IF) {
         tmr0_reset();
+        wdt_clear();
 
         if (_buzzerEnabled) {
-            wdt_clear();
-
             // '1 = 000' '2 = 001' '3 = 010' '4 = 011' '5 = 100' '6 = 101' '7 = 110' '8 = 111'
             switch (_toneMode) {
                 case 1: toneMode1();
                     break;
                 case 2: toneMode2();
                     break;
-                case 3: toneMode3(); // done
+                case 3: toneMode3();
                     break;
                 case 4: toneMode4();
                     break;
@@ -57,20 +56,22 @@ void __interrupt() led_isr() {
         }
 
         if (_ledEnabled) {
-            wdt_clear();
-
             // PWM_TEST
             if (!_ledDraining) _ledCounter++;
             else _ledCounter--;
 
             if (_ledSpeedFast) {
+                // Set LED Brightness
                 pwm2_set_duty(_ledCounter * 2 + 1);
 
+                // Flip led fill/drain
                 if (_ledCounter == 0) _ledDraining = 0;
                 else if (_ledCounter == PWM_MAX_DUTY / 2) _ledDraining = 1;
             } else {
+                // Set LED Brightness
                 pwm2_set_duty(_ledCounter);
 
+                // Flip led fill/drain
                 if (_ledCounter == 0) _ledDraining = 0;
                 else if (_ledCounter == PWM_MAX_DUTY) _ledDraining = 1;
             }
@@ -99,7 +100,7 @@ void __interrupt() led_isr() {
 }
 
 void main(void) {
-    wdt_init(WDT_8S);
+    wdt_init(WDT_128MS);
     wdt_enable();
 
     intosc_set_freq();
