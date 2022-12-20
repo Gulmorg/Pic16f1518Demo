@@ -8,48 +8,78 @@
 #ifndef TONES_H
 #define	TONES_H
 
+#define TONE_1_START_FREQ 500
+#define TONE_1_END_FREQ 1200
+#define TONE_2_START_FREQ 1000
+#define TONE_2_END_FREQ 2500
+#define TONE_5_START_FREQ 1200
+#define TONE_5_END_FREQ 500
+
+double _tone1Freq = TONE_1_START_FREQ;
+double _tone2Freq = TONE_2_START_FREQ;
+double _tone5Freq = TONE_5_START_FREQ;
 unsigned int _buzzerCounter = 0;
+unsigned char _buzzerState = 0;
 
 void toneMode1(void) { // NEN 2575 500Hz-1200Hz,3.5s, OFF 0.5s
-    while (1) {
-        wdt_clear();
-        unsigned char period = 124; // 500 Hz
-        pwm1_set_duty(BUZZER_VOLUME);
-        for (int i = 0; i < 74; i++) // 124 ile 50 arasinda 74 aralik var
-        {
-            PR2 = period;
-            _buzzerCounter = 0;
-            while (_buzzerCounter < 47);
-            period--;
-        }
-        pwm1_set_duty(0);
-        _buzzerCounter = 0;
-        while (_buzzerCounter < 500);
+    switch (_buzzerState) {
+        case 0:
+            pwm_set_freq(_tone1Freq);
+            pwm1_set_duty(BUZZER_VOLUME);
+            _tone1Freq += 5; // +700Hz in 3500ms = +5Hz in 1ms
+
+            if (_tone1Freq >= TONE_1_END_FREQ) {
+                pwm1_set_duty(0);
+                _tone1Freq = TONE_1_START_FREQ;
+                _buzzerState = 1;
+            }
+            break;
+        case 1:
+            if (_buzzerCounter < 500) {
+                _buzzerCounter++;
+            } else {
+                _buzzerCounter = 0;
+                _buzzerState = 0;
+            }
+            break;
     }
 }
 
 void toneMode2(void) { // AS1670 Evacuation 1000-2500Hz 0,5s-0,5s off x 3 / 1,5s off
-    while (1) {
-        wdt_clear();
-        unsigned char period = 62; //  1000 Hz
-        for (int a = 0; a < 3; a++) // 3 tekrar için
-        {
+    switch (_buzzerState) {
+        case 0:
+            pwm_set_freq(_tone2Freq);
             pwm1_set_duty(BUZZER_VOLUME);
-            for (int i = 0; i < 37; i++) // for (int i=249>99;i--)   62 den 25e kadar azaltarak 1Khz den 2.5 Khz e kadar yükseltildi.
-            {
-                PR2 = period;
-                _buzzerCounter = 0;
-                while (_buzzerCounter < 14);
-                period--;
+            _tone2Freq += 3; // +1500Hz in 500ms = +3Hz in 1ms
+
+            if (_tone2Freq >= TONE_2_END_FREQ) {
+                pwm1_set_duty(0);
+                _tone2Freq = TONE_2_START_FREQ;
+                _buzzerState = 1;
             }
-            period = 62;
-            pwm1_set_duty(0);
-            _buzzerCounter = 0;
-            while (_buzzerCounter < 500);
-        }
-        pwm1_set_duty(0);
-        _buzzerCounter = 0;
-        while (_buzzerCounter < 1000);
+            break;
+        case 1:
+            if (_buzzerCounter < 500) {
+                _buzzerCounter++;
+            } else {
+                _buzzerCounter = 0;
+                if (_buzzerRepeatCount < 3) {
+                    _buzzerState = 0;
+                    _buzzerRepeatCount++;
+                } else {
+                    _buzzerState = 2;
+                    _buzzerRepeatCount = 0;
+                }
+            }
+            break;
+        case 2:
+            if (_buzzerCounter < 1000) {
+                _buzzerCounter++;
+            } else {
+                _buzzerCounter = 0;
+                _buzzerState = 0;
+            }
+            break;
     }
 }
 
@@ -129,17 +159,17 @@ void toneMode4(void) { // ISO 8201
 }
 
 void toneMode5(void) { // DIN 33404-3
-    while (1) {
-        wdt_clear();
-        unsigned char period = 50;
-        pwm1_set_duty(BUZZER_VOLUME);
+    // 1200Hz > 500Hz 1000ms
+    switch (_buzzerState) {
+        case 0:
+            pwm_set_freq(_tone5Freq);
+            pwm1_set_duty(BUZZER_VOLUME);
+            _tone5Freq -= 1.4285; // +700Hz in 3500ms = +1.4285Hz in 1ms
 
-        for (int i = 0; i < 74; i++) { // for (int i=249; i>99;i--)
-            PR2 = period;
-            _buzzerCounter = 0;
-            while (_buzzerCounter < 14);
-            period++;
-        }
+            if (_tone5Freq <= TONE_5_END_FREQ) {
+                _tone5Freq = TONE_5_START_FREQ;
+            }
+            break;
     }
 }
 
@@ -174,16 +204,6 @@ void toneMode6(void) { // Australia AS1670 Alert Tone
 }
 
 void toneMode7(void) { // 660 Hz 0.15s ON , 0.15s OFF
-    while (1) {
-        wdt_clear();
-        pwm_set_freq(660); // 660 Hz
-        pwm1_set_duty(BUZZER_VOLUME);
-        _buzzerCounter = 0;
-        while (_buzzerCounter < 150);
-        pwm1_set_duty(0);
-        _buzzerCounter = 0;
-        while (_buzzerCounter < 150);
-    }
     switch (_buzzerState) {
         case 0:
             pwm_set_freq(660);
