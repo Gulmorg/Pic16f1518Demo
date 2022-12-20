@@ -24,12 +24,13 @@ unsigned char _buzzerState = 0;
 void toneMode1(void) { // NEN 2575 500Hz-1200Hz,3.5s, OFF 0.5s
     switch (_buzzerState) {
         case 0:
+            pwm1_enable();
             pwm_set_freq(_tone1Freq);
             pwm1_set_duty(BUZZER_VOLUME);
             _tone1Freq += 5; // +700Hz in 3500ms = +5Hz in 1ms
 
             if (_tone1Freq >= TONE_1_END_FREQ) {
-                pwm1_set_duty(0);
+                pwm1_disable();
                 _tone1Freq = TONE_1_START_FREQ;
                 _buzzerState = 1;
             }
@@ -48,12 +49,13 @@ void toneMode1(void) { // NEN 2575 500Hz-1200Hz,3.5s, OFF 0.5s
 void toneMode2(void) { // AS1670 Evacuation 1000-2500Hz 0,5s-0,5s off x 3 / 1,5s off
     switch (_buzzerState) {
         case 0:
+            pwm1_enable();
             pwm_set_freq(_tone2Freq);
             pwm1_set_duty(BUZZER_VOLUME);
             _tone2Freq += 3; // +1500Hz in 500ms = +3Hz in 1ms
 
             if (_tone2Freq >= TONE_2_END_FREQ) {
-                pwm1_set_duty(0);
+                pwm1_disable();
                 _tone2Freq = TONE_2_START_FREQ;
                 _buzzerState = 1;
             }
@@ -114,9 +116,10 @@ void toneMode3(void) { //!!! AFNOR NF S32-001 554 Hz 0.1s, 440 Hz 0.4s
     }
 }
 
-void toneMode4(void) { // ISO 8201
+void toneMode4(void) { // ISO 8201 2500 Hz 0.5sn ON /0.5 OFFx3 /1,5 sn OFF
     switch (_buzzerState) {
         case 0:
+            pwm1_enable();
             pwm_set_freq(2500);
             pwm1_set_duty(BUZZER_VOLUME);
             _buzzerState = 1;
@@ -130,7 +133,7 @@ void toneMode4(void) { // ISO 8201
             }
             break;
         case 2:
-            pwm1_set_duty(0);
+            pwm1_disable();
             _buzzerState = 3;
             break;
         case 3:
@@ -164,7 +167,7 @@ void toneMode5(void) { // DIN 33404-3
         case 0:
             pwm_set_freq(_tone5Freq);
             pwm1_set_duty(BUZZER_VOLUME);
-            _tone5Freq -= 1.4285; // +700Hz in 3500ms = +1.4285Hz in 1ms
+            _tone5Freq -= 1.4285; // -700Hz in 1000ms = -1.4285Hz in 1ms
 
             if (_tone5Freq <= TONE_5_END_FREQ) {
                 _tone5Freq = TONE_5_START_FREQ;
@@ -176,6 +179,7 @@ void toneMode5(void) { // DIN 33404-3
 void toneMode6(void) { // Australia AS1670 Alert Tone
     switch (_buzzerState) {
         case 0:
+            pwm1_enable();
             pwm_set_freq(420);
             pwm1_set_duty(BUZZER_VOLUME);
             _buzzerState = 1;
@@ -189,7 +193,7 @@ void toneMode6(void) { // Australia AS1670 Alert Tone
             }
             break;
         case 2:
-            pwm1_set_duty(0);
+            pwm1_disable();
             _buzzerState = 3;
             break;
         case 3:
@@ -206,6 +210,7 @@ void toneMode6(void) { // Australia AS1670 Alert Tone
 void toneMode7(void) { // 660 Hz 0.15s ON , 0.15s OFF
     switch (_buzzerState) {
         case 0:
+            pwm1_enable();
             pwm_set_freq(660);
             pwm1_set_duty(BUZZER_VOLUME);
             _buzzerState = 1;
@@ -219,7 +224,7 @@ void toneMode7(void) { // 660 Hz 0.15s ON , 0.15s OFF
             }
             break;
         case 2:
-            pwm1_set_duty(0);
+            pwm1_disable();
             _buzzerState = 3;
             break;
         case 3:
@@ -263,6 +268,5 @@ void toneMode8(void) { // 800Hz/1000Hz 0.5s each
             break;
     }
 }
-
 
 #endif

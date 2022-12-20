@@ -3,16 +3,16 @@
 #define TMR0RESET 6
 
 #define TMR2PRESCALE 64
-#define BUZZER_VOLUME 511 /* Max volume = `((Max Duty + 1) / 2) - 1 = `511´
-                                or just = `Max Duty / 2 = `511´ since the carry bit is discarded */
+
 #define _XTAL_FREQ 16000000
 
+#define BUZZER_VOLUME 250 /* Max volume = `((Max Duty + 1) / 2) - 1 = `511´
+                                or just = `Max Duty / 2 = `511´ since the carry bit is discarded */
 // Configuration
 #include "config.h"
 #include <xc.h>
 
 // Variables
-unsigned long _pwmFreq = 0;
 unsigned int _ledCounter = 0;
 unsigned char _toneMode = 0;
 unsigned char _buzzerRepeatCount = 0;
@@ -20,7 +20,7 @@ unsigned char _buzzerRepeatCount = 0;
 __bit _ledEnabled = 0;
 __bit _buzzerEnabled = 0;
 __bit _ledSpeedFast = 0;
-__bit _ledDraining = 0; // remove
+__bit _ledDraining = 0; // PWM Test
 
 // Modules
 #include "modules.h"
@@ -100,10 +100,10 @@ void __interrupt() led_isr() {
 }
 
 void main(void) {
-    wdt_init(WDT_128MS);
-    wdt_enable();
-
     intosc_set_freq();
+
+    wdt_init(WDT_1S);
+    wdt_enable();
 
     // Analog unit and analog ports are off
     ADCON0bits.ADON = 0;
@@ -136,7 +136,7 @@ void main(void) {
     }
 
     if (_buzzerEnabled) {
-        // Select Tone (3, 4, 6, 7, 8)
+        // Select Tone
         _toneMode = (unsigned char) (8 - (((int) TONE_PIN_0 << 2) + ((int) TONE_PIN_1 << 1) + (int) TONE_PIN_2));
         pwm1_enable();
         TRISCbits.TRISC2 = 0;
