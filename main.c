@@ -16,6 +16,8 @@ unsigned long _pwmFreq = 0;
 unsigned int _buzzerCounter = 0;
 unsigned int _ledCounter = 0;
 unsigned char _toneMode = 0;
+unsigned char _buzzerState = 0;
+
 __bit _ledEnabled = 0;
 __bit _buzzerEnabled = 0;
 __bit _ledSpeedFast = 0;
@@ -31,7 +33,38 @@ void __interrupt() led_isr() {
     if (INTCONbits.T0IF) {
         tmr0_reset();
 
-        if (_buzzerEnabled) _buzzerCounter++;
+        if (_buzzerEnabled) {
+            _buzzerCounter++;
+
+            wdt_clear();
+            int ledStateCount = 4;
+            if (_buzzerState == 0) {
+                pwm_set_freq(554);
+                pwm1_set_duty(BUZZER_VOLUME);
+                _buzzerState++;
+            }
+            if(_buzzerState == 1) {
+                if (_buzzerCounter < 100) {
+                    _buzzerCounter++;
+                } else {
+                    _buzzerCounter = 0;
+                    _buzzerState++;
+                }
+            }
+            if (_buzzerState == 2) {
+                pwm_set_freq(440);
+                pwm1_set_duty(BUZZER_VOLUME);
+            }
+            if (_buzzerState == 3) {
+                if (_buzzerCounter < 400) {
+                    _buzzerCounter++;
+                } else {
+                    _buzzerCounter = 0;
+                    _buzzerState++;
+                }
+            }
+            if (_buzzerState == ledStateCount) _buzzerState = 0;
+        }
 
         if (_ledEnabled) {
             wdt_clear();
@@ -97,9 +130,6 @@ void main(void) {
 
     __delay_ms(50);
 
-    tmr0_enable();
-    tmr2_enable();
-
     if (_ledEnabled) {
         // Select Flash Mode
         _ledSpeedFast = FLASH_SPEED_PIN;
@@ -119,17 +149,10 @@ void main(void) {
     _ledFilling = 1;
     // PWM_TEST_END
 
-    switch (_toneMode) {
-        case 1: toneMode1();
-        case 2: toneMode2();
-        case 3: toneMode3();
-        case 4: toneMode4();
-        case 5: toneMode5();
-        case 6: toneMode6();
-        case 7: toneMode7();
-        case 8: toneMode8();
-        default: while (1);
-    }
+    tmr0_enable();
+    tmr2_enable();
+
+    while (1);
 
     return;
 }
