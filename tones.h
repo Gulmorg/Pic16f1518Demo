@@ -10,32 +10,19 @@
 
 void toneMode1(void) { // NEN 2575 500Hz-1200Hz,3.5s, OFF 0.5s
     while (1) {
-                wdt_clear();
-                unsigned char period = 124; // 500 Hz
-                pwm1_set_duty(BUZZER_VOLUME);
-                for (int i = 0; i < 74; i++) // 124 ile 50 arasinda 74 aralik var
-                {
-                    PR2 = period;
-                    _buzzerCounter = 0;
-                    while (_buzzerCounter < 47);
-                    period--;
-                }
-                pwm1_set_duty(0);
-                _buzzerCounter = 0;
-                while (_buzzerCounter < 500);
-
-        // New
-//        wdt_clear();
-//        for (unsigned int i = 500; i < 1200; i++) {
-//            pwm_set_freq(i);
-//            pwm1_set_duty(BUZZER_VOLUME);
-//            _buzzerCounter = 0;
-//            while (_buzzerCounter < 5);
-//
-//        }
-//        pwm1_set_duty(0);
-//        _buzzerCounter = 0;
-//        while (_buzzerCounter < 500);
+        wdt_clear();
+        unsigned char period = 124; // 500 Hz
+        pwm1_set_duty(BUZZER_VOLUME);
+        for (int i = 0; i < 74; i++) // 124 ile 50 arasinda 74 aralik var
+        {
+            PR2 = period;
+            _buzzerCounter = 0;
+            while (_buzzerCounter < 47);
+            period--;
+        }
+        pwm1_set_duty(0);
+        _buzzerCounter = 0;
+        while (_buzzerCounter < 500);
     }
 }
 
@@ -65,16 +52,33 @@ void toneMode2(void) { // AS1670 Evacuation 1000-2500Hz 0,5s-0,5s off x 3 / 1,5s
 }
 
 void toneMode3(void) { //!!! AFNOR NF S32-001 554 Hz 0.1s, 440 Hz 0.4s
-    while (1) { //TODO: Re-write this inside isr with ifs instead of whiles
-        wdt_clear();
-        pwm_set_freq(554); // 554 Hz
-        pwm1_set_duty(BUZZER_VOLUME);
-        _buzzerCounter = 0;
-        while (_buzzerCounter < 100);
-        pwm_set_freq(440); //  440 Hz
-        pwm1_set_duty(BUZZER_VOLUME);
-        _buzzerCounter = 0;
-        while (_buzzerCounter < 400);
+    switch (_buzzerState) {
+        case 0:
+            pwm_set_freq(544);
+            pwm1_set_duty(BUZZER_VOLUME);
+            _buzzerState = 1;
+            break;
+        case 1:
+            if (_buzzerCounter < 100) {
+                _buzzerCounter++;
+            } else {
+                _buzzerCounter = 0;
+                _buzzerState = 2;
+            }
+            break;
+        case 2:
+            pwm_set_freq(440);
+            pwm1_set_duty(BUZZER_VOLUME);
+            _buzzerState = 3;
+            break;
+        case 3:
+            if (_buzzerCounter < 400) {
+                _buzzerCounter++;
+            } else {
+                _buzzerCounter = 0;
+                _buzzerState = 0;
+            }
+            break;
     }
 }
 

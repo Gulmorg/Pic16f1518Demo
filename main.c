@@ -21,7 +21,7 @@ unsigned char _buzzerState = 0;
 __bit _ledEnabled = 0;
 __bit _buzzerEnabled = 0;
 __bit _ledSpeedFast = 0;
-__bit _ledFilling = 0; // remove
+__bit _ledDraining = 0; // remove
 
 // Modules
 #include "modules.h"
@@ -34,49 +34,46 @@ void __interrupt() led_isr() {
         tmr0_reset();
 
         if (_buzzerEnabled) {
-            _buzzerCounter++;
-
             wdt_clear();
-            int ledStateCount = 4;
-            if (_buzzerState == 0) {
-                pwm_set_freq(554);
-                pwm1_set_duty(BUZZER_VOLUME);
-                _buzzerState++;
+
+            switch (_toneMode) {
+                case 1: toneMode1();
+                    break;
+                case 2: toneMode2();
+                    break;
+                case 3: toneMode3();// done
+                    break;
+                case 4: toneMode4();
+                    break;
+                case 5: toneMode5();
+                    break;
+                case 6: toneMode6();
+                    break;
+                case 7: toneMode7();
+                    break;
+                case 8: toneMode8();
+                    break;
             }
-            if(_buzzerState == 1) {
-                if (_buzzerCounter < 100) {
-                    _buzzerCounter++;
-                } else {
-                    _buzzerCounter = 0;
-                    _buzzerState++;
-                }
-            }
-            if (_buzzerState == 2) {
-                pwm_set_freq(440);
-                pwm1_set_duty(BUZZER_VOLUME);
-            }
-            if (_buzzerState == 3) {
-                if (_buzzerCounter < 400) {
-                    _buzzerCounter++;
-                } else {
-                    _buzzerCounter = 0;
-                    _buzzerState++;
-                }
-            }
-            if (_buzzerState == ledStateCount) _buzzerState = 0;
         }
 
         if (_ledEnabled) {
             wdt_clear();
 
             // PWM_TEST
-            if (_ledFilling) _ledCounter++;
+            if (!_ledDraining) _ledCounter++;
             else _ledCounter--;
 
-            pwm2_set_duty(_ledCounter);
+            if (_ledSpeedFast) {
+                pwm2_set_duty(_ledCounter * 2 + 1);
 
-            if (_ledCounter == 0) _ledFilling = 1;
-            else if (_ledCounter == PWM_MAX_DUTY) _ledFilling = 0;
+                if (_ledCounter == 0) _ledDraining = 0;
+                else if (_ledCounter == PWM_MAX_DUTY / 2) _ledDraining = 1;
+            } else {
+                pwm2_set_duty(_ledCounter);
+
+                if (_ledCounter == 0) _ledDraining = 0;
+                else if (_ledCounter == PWM_MAX_DUTY) _ledDraining = 1;
+            }
             // PWM_TEST_END
 
             //                        _ledCounter++;
@@ -146,7 +143,6 @@ void main(void) {
 
     // PWM_TEST
     _toneMode = 3;
-    _ledFilling = 1;
     // PWM_TEST_END
 
     tmr0_enable();
