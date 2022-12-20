@@ -3,7 +3,7 @@
 #define TMR0RESET 6
 
 #define TMR2PRESCALE 64
-#define BUZZER_VOLUME 511 /* Max volume = `((Max Duty + 1) / 2) - 1 = `511´
+#define BUZZER_VOLUME 1 /* Max volume = `((Max Duty + 1) / 2) - 1 = `511´
                                 or just = `Max Duty / 2 = `511´ since the carry bit is discarded */
 #define _XTAL_FREQ 16000000
 
@@ -13,10 +13,10 @@
 
 // Variables
 unsigned long _pwmFreq = 0;
-unsigned int _buzzerCounter = 0;
 unsigned int _ledCounter = 0;
 unsigned char _toneMode = 0;
 unsigned char _buzzerState = 0;
+unsigned char _buzzerRepeatCount = 0;
 
 __bit _ledEnabled = 0;
 __bit _buzzerEnabled = 0;
@@ -36,12 +36,13 @@ void __interrupt() led_isr() {
         if (_buzzerEnabled) {
             wdt_clear();
 
+            // '1 = 000' '2 = 001' '3 = 010' '4 = 011' '5 = 100' '6 = 101' '7 = 110' '8 = 111'
             switch (_toneMode) {
                 case 1: toneMode1();
                     break;
                 case 2: toneMode2();
                     break;
-                case 3: toneMode3();// done
+                case 3: toneMode3(); // done
                     break;
                 case 4: toneMode4();
                     break;
@@ -140,10 +141,6 @@ void main(void) {
         pwm1_enable();
         TRISCbits.TRISC2 = 0;
     }
-
-    // PWM_TEST
-    _toneMode = 3;
-    // PWM_TEST_END
 
     tmr0_enable();
     tmr2_enable();
