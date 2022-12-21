@@ -18,7 +18,7 @@ void pwm_set_freq(double freq) {
 }
 
 unsigned int pwm_calculate_duty(double duty) {
-    return (unsigned int) (((duty / PWM_MAX_DUTY) * (1 / _pwmFreq)) / ((1 / (double) _XTAL_FREQ) * TMR2PRESCALE));
+    return (unsigned int) ((duty * _XTAL_FREQ) / (_pwmFreq * PWM_MAX_DUTY * TMR2PRESCALE));
 }
 
 #endif
