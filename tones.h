@@ -27,7 +27,7 @@ void toneMode1(void) { // NEN 2575 500Hz-1200Hz,3.5s, OFF 0.5s
             pwm1_enable();
             pwm_set_freq(_tone1Freq);
             pwm1_set_duty(BUZZER_VOLUME);
-            _tone1Freq += 5; // +700Hz in 3500ms = +5Hz in 1ms
+            _tone1Freq += 0.2; // +700Hz in 3500ms = +0.2Hz in 1ms
 
             if (_tone1Freq >= TONE_1_END_FREQ) {
                 pwm1_disable();
@@ -167,7 +167,7 @@ void toneMode5(void) { // DIN 33404-3
         case 0:
             pwm_set_freq(_tone5Freq);
             pwm1_set_duty(BUZZER_VOLUME);
-            _tone5Freq -= 1.4285; // -700Hz in 1000ms = -1.4285Hz in 1ms
+            _tone5Freq -= 0.7; // -700Hz in 1000ms = -0.7Hz in 1ms
 
             if (_tone5Freq <= TONE_5_END_FREQ) {
                 _tone5Freq = TONE_5_START_FREQ;
