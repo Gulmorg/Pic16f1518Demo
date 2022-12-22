@@ -140,6 +140,8 @@ void main(void) {
         _toneMode = (unsigned char) (8 - (((int) TONE_PIN_0 << 2) + ((int) TONE_PIN_1 << 1) + (int) TONE_PIN_2));
         pwm1_enable();
         TRISCbits.TRISC2 = 0;
+    } else {
+        pwm_set_freq(5000);
     }
 
     tmr0_enable();
