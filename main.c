@@ -141,7 +141,7 @@ void main(void) {
         pwm1_enable();
         TRISCbits.TRISC2 = 0;
     } else {
-        pwm_set_freq(5000);
+        PR2 = 255;
     }
 
     tmr0_enable();
