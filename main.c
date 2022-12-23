@@ -141,6 +141,8 @@ void main(void) {
     tmr0_enable();
     tmr2_enable();
 
+    wdt_init(WDT_16MS);
+
     while (1);
 
     return;
