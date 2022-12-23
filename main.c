@@ -6,8 +6,10 @@
 
 #define _XTAL_FREQ 16000000
 
-#define BUZZER_VOLUME 250 /* Max volume = `((Max Duty + 1) / 2) - 1 = `511´
-                                or just = `Max Duty / 2 = `511´ since the carry bit is discarded */
+// Max Brightness = 1023
+#define LED_BRIGHTNESS 500
+// Max volume = `((Max Duty + 1) / 2) - 1 = `511´ or just = `Max Duty / 2 = `511´ since the carry bit is discarded*/
+#define BUZZER_VOLUME 0
 // Configuration
 #include "config.h"
 #include <xc.h>
@@ -20,7 +22,8 @@ unsigned char _buzzerRepeatCount = 0;
 __bit _ledEnabled = 0;
 __bit _buzzerEnabled = 0;
 __bit _ledSpeedFast = 0;
-__bit _ledDraining = 0; // PWM Test
+__bit _ledOn = 0;
+unsigned int _lbTemp = 0;
 
 // Modules
 #include "modules.h"
@@ -56,45 +59,36 @@ void __interrupt() led_isr() {
         }
 
         if (_ledEnabled) {
-            // PWM_TEST
-            if (!_ledDraining) _ledCounter++;
-            else _ledCounter--;
-
-            if (_ledSpeedFast) {
-                // Set LED Brightness
-                pwm2_set_duty(_ledCounter * 2 + 1);
-
-                // Flip led fill/drain
-                if (_ledCounter == 0) _ledDraining = 0;
-                else if (_ledCounter == PWM_MAX_DUTY / 2) _ledDraining = 1;
-            } else {
-                // Set LED Brightness
-                pwm2_set_duty(_ledCounter);
-
-                // Flip led fill/drain
-                if (_ledCounter == 0) _ledDraining = 0;
-                else if (_ledCounter == PWM_MAX_DUTY) _ledDraining = 1;
+            _ledCounter++;
+            if (_ledSpeedFast) { // 1Hz
+                if (_ledOn && _ledCounter >= 175) {
+                    _ledOn = 0;
+                    _ledCounter = 0;
+                    pwm2_disable();
+                    RC1 = 0;
+                } else if (!_ledOn && _ledCounter >= 825) {
+                    pwm2_set_duty(_lbTemp);
+                    _lbTemp += 100;
+                    if (_lbTemp == 1000) _lbTemp = 0;
+                    pwm2_enable();
+                    _ledOn = 1;
+                    _ledCounter = 0;
+                }
+            } else { // 0.5Hz
+                if (_ledOn && _ledCounter >= 175) {
+                    _ledOn = 0;
+                    _ledCounter = 0;
+                    pwm2_disable();
+                    RC1 = 0;
+                } else if (!_ledOn && _ledCounter >= 1640) {
+                    pwm2_set_duty(_lbTemp);
+                    _lbTemp += 100;
+                    if (_lbTemp == 1000) _lbTemp = 0;
+                    pwm2_enable();
+                    _ledOn = 1;
+                    _ledCounter = 0;
+                }
             }
-            // PWM_TEST_END
-
-            //                        _ledCounter++;
-            //                        if (_ledSpeedFast) { // 1Hz
-            //                            if (RC1 == 1 && _ledCounter >= 175) {
-            //                                RC1 = 0;
-            //                                _ledCounter = 0;
-            //                            } else if (RC1 == 0 && _ledCounter >= 825) {
-            //                                RC1 = 1;
-            //                                _ledCounter = 0;
-            //                            }
-            //                        } else { // 0.5Hz
-            //                            if (RC1 == 1 && _ledCounter >= 175) {
-            //                                RC1 = 0;
-            //                                _ledCounter = 0;
-            //                            } else if (RC1 == 0 && _ledCounter >= 1640) {
-            //                                RC1 = 1;
-            //                                _ledCounter = 0;
-            //                            }
-            //                        }
         }
     }
 }
