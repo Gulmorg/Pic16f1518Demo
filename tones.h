@@ -8,16 +8,17 @@
 #ifndef TONES_H
 #define	TONES_H
 
-#define TONE_1_START_FREQ 500
-#define TONE_1_END_FREQ 1200
+#define TONE_1_START_PERIOD 124
+#define TONE_1_END_PERIOD 50
 #define TONE_2_START_FREQ 1000
 #define TONE_2_END_FREQ 2500
 #define TONE_5_START_FREQ 1200
 #define TONE_5_END_FREQ 500
 
-double _tone1Freq = TONE_1_START_FREQ;
+unsigned char _tone1Period = TONE_1_START_PERIOD;
 double _tone2Freq = TONE_2_START_FREQ;
 double _tone5Freq = TONE_5_START_FREQ;
+unsigned char _toneCounter = 0;
 unsigned int _buzzerCounter = 0;
 unsigned char _buzzerState = 0;
 
@@ -25,17 +26,25 @@ void toneMode1(void) { // NEN 2575 500Hz-1200Hz,3.5s, OFF 0.5s
     switch (_buzzerState) {
         case 0:
             pwm1_enable();
-            pwm_set_freq(_tone1Freq);
+            _buzzerState = 1;
+        case 1:
+            PR2 = _tone1Period;
             pwm1_set_duty(BUZZER_VOLUME);
-            _tone1Freq += 0.2; // +700Hz in 3500ms = +0.2Hz in 1ms
 
-            if (_tone1Freq >= TONE_1_END_FREQ) {
+            if (_toneCounter < 47) {
+                _toneCounter++;
+            } else {
+                _tone1Period--;
+                _toneCounter = 0;
+            }
+
+            if (_tone1Period < TONE_1_END_PERIOD) {
                 pwm1_disable();
-                _tone1Freq = TONE_1_START_FREQ;
-                _buzzerState = 1;
+                _tone1Period = TONE_1_START_PERIOD;
+                _buzzerState = 2;
             }
             break;
-        case 1:
+        case 2:
             if (_buzzerCounter < 500) {
                 _buzzerCounter++;
             } else {
