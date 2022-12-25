@@ -9,7 +9,7 @@
 // Max Brightness = 1023
 #define LED_BRIGHTNESS 500
 // Max volume = `((Max Duty + 1) / 2) - 1 = `511´ or just = `Max Duty / 2 = `511´ since the carry bit is discarded*/
-#define BUZZER_VOLUME 0
+#define BUZZER_VOLUME 1
 // Configuration
 #include "config.h"
 #include <xc.h>
@@ -22,8 +22,7 @@ unsigned char _buzzerRepeatCount = 0;
 __bit _ledEnabled = 0;
 __bit _buzzerEnabled = 0;
 __bit _ledSpeedFast = 0;
-__bit _ledOn = 0;
-unsigned int _lbTemp = 0;
+unsigned int _ledBrightnessTemp = 0;
 
 // Modules
 #include "modules.h"
@@ -37,7 +36,6 @@ void __interrupt() led_isr() {
         wdt_clear();
 
         if (_buzzerEnabled) {
-            // '1 = 000' '2 = 001' '3 = 010' '4 = 011' '5 = 100' '6 = 101' '7 = 110' '8 = 111'
             switch (_toneMode) {
                 case 1: toneMode1();
                     break;
@@ -61,31 +59,25 @@ void __interrupt() led_isr() {
         if (_ledEnabled) {
             _ledCounter++;
             if (_ledSpeedFast) { // 1Hz
-                if (_ledOn && _ledCounter >= 175) {
-                    _ledOn = 0;
-                    _ledCounter = 0;
+                if (_ledCounter == 175) {
                     pwm2_disable();
                     RC1 = 0;
-                } else if (!_ledOn && _ledCounter >= 825) {
-                    pwm2_set_duty(_lbTemp);
-                    _lbTemp += 100;
-                    if (_lbTemp == 1000) _lbTemp = 0;
+                } else if (_ledCounter >= 1000) {
+                    pwm2_set_duty(_ledBrightnessTemp);
+                    _ledBrightnessTemp += 100;
+                    if (_ledBrightnessTemp == 1000) _ledBrightnessTemp = 0;
                     pwm2_enable();
-                    _ledOn = 1;
                     _ledCounter = 0;
                 }
             } else { // 0.5Hz
-                if (_ledOn && _ledCounter >= 175) {
-                    _ledOn = 0;
-                    _ledCounter = 0;
+                if (_ledCounter == 175) {
                     pwm2_disable();
                     RC1 = 0;
-                } else if (!_ledOn && _ledCounter >= 1640) {
-                    pwm2_set_duty(_lbTemp);
-                    _lbTemp += 100;
-                    if (_lbTemp == 1000) _lbTemp = 0;
+                } else if (_ledCounter >= 2000) {
+                    pwm2_set_duty(_ledBrightnessTemp);
+                    _ledBrightnessTemp += 100;
+                    if (_ledBrightnessTemp == 1000) _ledBrightnessTemp = 0;
                     pwm2_enable();
-                    _ledOn = 1;
                     _ledCounter = 0;
                 }
             }
@@ -125,23 +117,23 @@ void main(void) {
     if (_ledEnabled) {
         // Select Flash Mode
         _ledSpeedFast = FLASH_SPEED_PIN;
-        pwm2_enable();
         TRISCbits.TRISC1 = 0;
+        RC1 = 0;
+        pwm2_enable();
     }
 
     if (_buzzerEnabled) {
         // Select Tone
         _toneMode = (unsigned char) (8 - (((int) TONE_PIN_0 << 2) + ((int) TONE_PIN_1 << 1) + (int) TONE_PIN_2));
-        pwm1_enable();
         TRISCbits.TRISC2 = 0;
+        RC2 = 0;
+        pwm1_enable();
     } else {
         PR2 = 255;
     }
 
     tmr0_enable();
     tmr2_enable();
-
-    wdt_init(WDT_16MS);
 
     while (1);
 
