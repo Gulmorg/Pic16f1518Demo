@@ -36,7 +36,39 @@ void tmr2_init(void) {
     T2CONbits.T2CKPS = 0b11;
 #endif
 
-    T2CONbits.T2OUTPS = TMR2POSTSCALE - 1; // -1 Because 0b0000 is DIV_BY_1
+#if TMR2POSTSCALE == 1
+    T2CONbits.T2OUTPS = 0b0000;
+#elif TMR2POSTSCALE == 2
+    T2CONbits.T2OUTPS = 0b0001;
+#elif TMR2POSTSCALE == 3
+    T2CONbits.T2OUTPS = 0b0010;
+#elif TMR2POSTSCALE == 4
+    T2CONbits.T2OUTPS = 0b0011;
+#elif TMR2POSTSCALE == 5
+    T2CONbits.T2OUTPS = 0b0100;
+#elif TMR2POSTSCALE == 6
+    T2CONbits.T2OUTPS = 0b0101;
+#elif TMR2POSTSCALE == 7
+    T2CONbits.T2OUTPS = 0b0110;
+#elif TMR2POSTSCALE == 8
+    T2CONbits.T2OUTPS = 0b0111;
+#elif TMR2POSTSCALE == 9
+    T2CONbits.T2OUTPS = 0b1000;
+#elif TMR2POSTSCALE == 10
+    T2CONbits.T2OUTPS = 0b1001;
+#elif TMR2POSTSCALE == 11
+    T2CONbits.T2OUTPS = 0b1010;
+#elif TMR2POSTSCALE == 12
+    T2CONbits.T2OUTPS = 0b1011;
+#elif TMR2POSTSCALE == 13
+    T2CONbits.T2OUTPS = 0b1100;
+#elif TMR2POSTSCALE == 14
+    T2CONbits.T2OUTPS = 0b1101;
+#elif TMR2POSTSCALE == 15
+    T2CONbits.T2OUTPS = 0b1110;
+#elif TMR2POSTSCALE == 16
+    T2CONbits.T2OUTPS = 0b1111;
+#endif
 }
 
 #define tmr2_enable() T2CONbits.TMR2ON = 1; TMR2 = 0
