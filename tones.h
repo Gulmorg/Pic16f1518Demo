@@ -150,7 +150,7 @@ void toneMode4(void) { // ISO 8201 2500 Hz 0.5sn ON /0.5 OFFx3 /1,5 sn OFF
                 _buzzerCounter++;
             } else {
                 _buzzerCounter = 0;
-                if (_buzzerRepeatCount < 3) {
+                if (_buzzerRepeatCount < 2) {
                     _buzzerState = 0;
                     _buzzerRepeatCount++;
                 } else {
