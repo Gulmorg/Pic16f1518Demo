@@ -10,14 +10,14 @@
 
 #define TONE_1_START_PERIOD 124
 #define TONE_1_END_PERIOD 50
-#define TONE_2_START_FREQ 1000
-#define TONE_2_END_FREQ 2500
-#define TONE_5_START_FREQ 1200
-#define TONE_5_END_FREQ 500
+#define TONE_2_START_PERIOD 62
+#define TONE_2_END_PERIOD 25
+#define TONE_5_START_PERIOD 50
+#define TONE_5_END_PERIOD 124
 
 unsigned char _tone1Period = TONE_1_START_PERIOD;
-double _tone2Freq = TONE_2_START_FREQ;
-double _tone5Freq = TONE_5_START_FREQ;
+unsigned char _tone2Period = TONE_2_START_PERIOD;
+unsigned char _tone5Period = TONE_5_START_PERIOD;
 unsigned char _toneCounter = 0;
 unsigned int _buzzerCounter = 0;
 unsigned char _buzzerState = 0;
@@ -32,7 +32,7 @@ void toneMode1(void) { // NEN 2575 500Hz-1200Hz,3.5s, OFF 0.5s
             pwm1_set_duty(BUZZER_VOLUME);
             _buzzerState = 2;
         case 2:
-            if (_toneCounter < 47) { // Count for 47 milliseconds
+            if (_toneCounter < 46) { // Count for 47 milliseconds
                 _toneCounter++;
             } else {
                 _tone1Period--; // Reduce period by 1 every 47 milliseconds so it's reduced by 74 every 3500 milliseconds
@@ -62,17 +62,28 @@ void toneMode2(void) { // AS1670 Evacuation 1000-2500Hz 0,5s-0,5s off x 3 / 1,5s
     switch (_buzzerState) {
         case 0:
             pwm1_enable();
-            pwm_set_freq(_tone2Freq);
+            _buzzerState = 1;
+        case 1:
+            PR2 = _tone2Period;
             pwm1_set_duty(BUZZER_VOLUME);
-            _tone2Freq += 3; // +1500Hz in 500ms = +3Hz in 1ms
+            _buzzerState = 2;
+        case 2:
+            if (_toneCounter < 13) { // Count for 14 milliseconds
+                _toneCounter++;
+            } else {
+                _tone2Period--; // Reduce period by 1 every 14 milliseconds so it's reduced by 37 every 500 milliseconds
+                _toneCounter = 0;
 
-            if (_tone2Freq >= TONE_2_END_FREQ) {
-                pwm1_disable();
-                _tone2Freq = TONE_2_START_FREQ;
-                _buzzerState = 1;
+                if (_tone2Period > TONE_2_END_PERIOD) {
+                    _buzzerState = 1;
+                } else {
+                    pwm1_disable();
+                    _tone2Period = TONE_2_START_PERIOD;
+                    _buzzerState = 3;
+                }
             }
             break;
-        case 1:
+        case 3:
             if (_buzzerCounter < 500) {
                 _buzzerCounter++;
             } else {
@@ -81,12 +92,12 @@ void toneMode2(void) { // AS1670 Evacuation 1000-2500Hz 0,5s-0,5s off x 3 / 1,5s
                     _buzzerState = 0;
                     _buzzerRepeatCount++;
                 } else {
-                    _buzzerState = 2;
+                    _buzzerState = 4;
                     _buzzerRepeatCount = 0;
                 }
             }
             break;
-        case 2:
+        case 4:
             if (_buzzerCounter < 1000) {
                 _buzzerCounter++;
             } else {
@@ -173,16 +184,23 @@ void toneMode4(void) { // ISO 8201 2500 Hz 0.5sn ON /0.5 OFFx3 /1,5 sn OFF
     }
 }
 
-void toneMode5(void) { // DIN 33404-3
-    // 1200Hz > 500Hz 1000ms
+void toneMode5(void) { // DIN 33404-3 1200Hz-500Hz 1000ms
     switch (_buzzerState) {
         case 0:
-            pwm_set_freq(_tone5Freq);
+            PR2 = _tone5Period;
             pwm1_set_duty(BUZZER_VOLUME);
-            _tone5Freq -= 0.7; // -700Hz in 1000ms = -0.7Hz in 1ms
+            _buzzerState = 1;
+        case 1:
+            if (_toneCounter < 13) { // Count for 14 milliseconds
+                _toneCounter++;
+            } else {
+                _tone5Period++; // Increase period by 1 every 14 milliseconds so it's increased by 74 every 1000 milliseconds
+                _toneCounter = 0;
 
-            if (_tone5Freq <= TONE_5_END_FREQ) {
-                _tone5Freq = TONE_5_START_FREQ;
+                if (_tone5Period > TONE_5_END_PERIOD) {
+                    _tone5Period = TONE_5_START_PERIOD;
+                }
+                _buzzerState = 0;
             }
             break;
     }
