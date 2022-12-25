@@ -263,7 +263,7 @@ void toneMode8(void) { // 800Hz/1000Hz 0.5s each
             }
             break;
         case 2:
-            pwm_set_freq(100);
+            pwm_set_freq(1000);
             pwm1_set_duty(BUZZER_VOLUME);
             _buzzerState = 3;
             break;
