@@ -74,7 +74,7 @@ void toneMode2(void) { // AS1670 Evacuation 1000-2500Hz 0,5s-0,5s off x 3 / 1,5s
                 _buzzerCounter++;
             } else {
                 _buzzerCounter = 0;
-                if (_buzzerRepeatCount < 3) {
+                if (_buzzerRepeatCount < 2) {
                     _buzzerState = 0;
                     _buzzerRepeatCount++;
                 } else {
