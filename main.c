@@ -22,7 +22,7 @@ unsigned char _buzzerRepeatCount = 0;
 __bit _ledEnabled = 0;
 __bit _buzzerEnabled = 0;
 __bit _ledSpeedFast = 0;
-unsigned int _ledBrightnessTemp = 0;
+unsigned int _ledBrightnessTemp = 100;
 
 // Modules
 #include "modules.h"
@@ -65,7 +65,7 @@ void __interrupt() led_isr() {
                 } else if (_ledCounter >= 1000) {
                     pwm2_set_duty(_ledBrightnessTemp);
                     _ledBrightnessTemp += 100;
-                    if (_ledBrightnessTemp == 1000) _ledBrightnessTemp = 0;
+                    if (_ledBrightnessTemp == 1000) _ledBrightnessTemp = 100;
                     pwm2_enable();
                     _ledCounter = 0;
                 }
@@ -76,7 +76,7 @@ void __interrupt() led_isr() {
                 } else if (_ledCounter >= 2000) {
                     pwm2_set_duty(_ledBrightnessTemp);
                     _ledBrightnessTemp += 100;
-                    if (_ledBrightnessTemp == 1000) _ledBrightnessTemp = 0;
+                    if (_ledBrightnessTemp == 1000) _ledBrightnessTemp = 100;
                     pwm2_enable();
                     _ledCounter = 0;
                 }
