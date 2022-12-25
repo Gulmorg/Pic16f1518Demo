@@ -30,21 +30,24 @@ void toneMode1(void) { // NEN 2575 500Hz-1200Hz,3.5s, OFF 0.5s
         case 1:
             PR2 = _tone1Period;
             pwm1_set_duty(BUZZER_VOLUME);
-
-            if (_toneCounter < 47) {
+            _buzzerState = 2;
+        case 2:
+            if (_toneCounter < 47) { // Count for 47 milliseconds
                 _toneCounter++;
             } else {
-                _tone1Period--;
+                _tone1Period--; // Reduce period by 1 every 47 milliseconds so it's reduced by 74 every 3500 milliseconds
                 _toneCounter = 0;
-            }
 
-            if (_tone1Period < TONE_1_END_PERIOD) {
-                pwm1_disable();
-                _tone1Period = TONE_1_START_PERIOD;
-                _buzzerState = 2;
+                if (_tone1Period > TONE_1_END_PERIOD) {
+                    _buzzerState = 1;
+                } else {
+                    pwm1_disable();
+                    _tone1Period = TONE_1_START_PERIOD;
+                    _buzzerState = 3;
+                }
             }
             break;
-        case 2:
+        case 3:
             if (_buzzerCounter < 500) {
                 _buzzerCounter++;
             } else {
