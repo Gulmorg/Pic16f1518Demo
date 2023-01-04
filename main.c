@@ -63,7 +63,7 @@ void __interrupt() led_isr() {
                     pwm2_disable();
                     RC1 = 0;
                 } else if (_ledCounter >= 1000) {
-                    pwm2_set_duty(_ledBrightnessTemp);  //TEMP (set this only once in main() if(_ledEnabled) block)
+                    pwm2_set_duty(_ledBrightnessTemp);  //TEMP
                     _ledBrightnessTemp += 100;  //TEMP
                     if (_ledBrightnessTemp == 1000) _ledBrightnessTemp = 100;  //TEMP
                     pwm2_enable();
@@ -74,7 +74,7 @@ void __interrupt() led_isr() {
                     pwm2_disable();
                     RC1 = 0;
                 } else if (_ledCounter >= 2000) {
-                    pwm2_set_duty(_ledBrightnessTemp);  //TEMP (set this only once in main() if(_ledEnabled) block)
+                    pwm2_set_duty(_ledBrightnessTemp);  //TEMP
                     _ledBrightnessTemp += 100;  //TEMP
                     if (_ledBrightnessTemp == 1000) _ledBrightnessTemp = 100;  //TEMP
                     pwm2_enable();
@@ -119,6 +119,7 @@ void main(void) {
         _ledSpeedFast = FLASH_SPEED_PIN;
         TRISCbits.TRISC1 = 0;
         RC1 = 0;
+        pwm2_set_duty(LED_BRIGHTNESS);
         pwm2_enable();
     }
 
