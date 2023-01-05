@@ -15,7 +15,7 @@ void pwm_set_freq(double freq) {
 }
 
 unsigned int pwm_calculate_duty(double duty) {
-    return (unsigned int) ((duty * 4 * (PR2 + 1)) / PWM_MAX_DUTY);
+    return (unsigned int) ((duty * (4 * (PR2 + 1) - 1)) / PWM_MAX_DUTY);
 }
 
 #endif
