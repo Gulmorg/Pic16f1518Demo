@@ -7,9 +7,9 @@
 #define _XTAL_FREQ 16000000
 
 // Max Brightness = 1023
-#define LED_BRIGHTNESS 500
+#define LED_BRIGHTNESS_DUTY 500
 // Max volume = `((Max Duty + 1) / 2) - 1 = `511´ or just = `Max Duty / 2 = `511´ since the carry bit is discarded*/
-#define BUZZER_VOLUME 1
+#define BUZZER_VOLUME_DUTY 1
 // Configuration
 #include "config.h"
 #include <xc.h>
@@ -119,7 +119,7 @@ void main(void) {
         _ledSpeedFast = FLASH_SPEED_PIN;
         TRISCbits.TRISC1 = 0;
         RC1 = 0;
-        pwm2_set_duty(LED_BRIGHTNESS);
+        pwm2_set_duty(LED_BRIGHTNESS_DUTY);
         pwm2_enable();
     }
 
