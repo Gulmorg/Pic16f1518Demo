@@ -7,8 +7,8 @@
 #define _XTAL_FREQ 16000000
 
 // Max Brightness = 1023
-#define LED_BRIGHTNESS_DUTY 500
-// Max volume = `((Max Duty + 1) / 2) - 1 = `511´ or just = `Max Duty / 2 = `511´ since the carry bit is discarded*/
+#define LED_BRIGHTNESS_DUTY 300
+// Max volume = `((Max Duty + 1) / 2) - 1 = `511´ or just = `Max Duty / 2 = `511´ since the carry bit is discarded
 #define BUZZER_VOLUME_DUTY 1
 // Configuration
 #include "config.h"
@@ -22,7 +22,6 @@ unsigned char _buzzerRepeatCount = 0;
 __bit _ledEnabled = 0;
 __bit _buzzerEnabled = 0;
 __bit _ledSpeedFast = 0;
-unsigned int _ledBrightnessTemp = 100;  //TEMP
 
 // Modules
 #include "modules.h"
@@ -63,9 +62,7 @@ void __interrupt() led_isr() {
                     pwm2_disable();
                     RC1 = 0;
                 } else if (_ledCounter >= 1000) {
-                    pwm2_set_duty(_ledBrightnessTemp);  //TEMP
-                    _ledBrightnessTemp += 100;  //TEMP
-                    if (_ledBrightnessTemp == 1000) _ledBrightnessTemp = 100;  //TEMP
+                    if (_buzzerEnabled) pwm2_set_duty(LED_BRIGHTNESS_DUTY);
                     pwm2_enable();
                     _ledCounter = 0;
                 }
@@ -74,9 +71,7 @@ void __interrupt() led_isr() {
                     pwm2_disable();
                     RC1 = 0;
                 } else if (_ledCounter >= 2000) {
-                    pwm2_set_duty(_ledBrightnessTemp);  //TEMP
-                    _ledBrightnessTemp += 100;  //TEMP
-                    if (_ledBrightnessTemp == 1000) _ledBrightnessTemp = 100;  //TEMP
+                    if (_buzzerEnabled) pwm2_set_duty(LED_BRIGHTNESS_DUTY);
                     pwm2_enable();
                     _ledCounter = 0;
                 }
@@ -114,15 +109,6 @@ void main(void) {
 
     __delay_ms(50);
 
-    if (_ledEnabled) {
-        // Select Flash Mode
-        _ledSpeedFast = FLASH_SPEED_PIN;
-        TRISCbits.TRISC1 = 0;
-        RC1 = 0;
-        pwm2_set_duty(LED_BRIGHTNESS_DUTY);
-        pwm2_enable();
-    }
-
     if (_buzzerEnabled) {
         // Select Tone
         _toneMode = (unsigned char) (8 - (((int) TONE_PIN_0 << 2) + ((int) TONE_PIN_1 << 1) + (int) TONE_PIN_2));
@@ -131,6 +117,15 @@ void main(void) {
         pwm1_enable();
     } else {
         PR2 = 255;
+    }
+
+    if (_ledEnabled) {
+        // Select Flash Mode
+        _ledSpeedFast = FLASH_SPEED_PIN;
+        TRISCbits.TRISC1 = 0;
+        RC1 = 0;
+        if (!_buzzerEnabled) pwm2_set_duty(LED_BRIGHTNESS_DUTY);
+        pwm2_enable();
     }
 
     tmr0_enable();
